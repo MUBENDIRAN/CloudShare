@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    transition: background-color 0.3s ease;
+}
+
+.container {
+    text-align: center;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    transition: all 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo svg {
+    color: #007bff;
+    margin-right: 10px;
+}
+
+.logo h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.theme-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.action-buttons .btn {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 15px 30px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-buttons .btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 123, 255, 0.25);
+}
+
+.hidden {
+    display: none;
+}
+
+#send-section, #receive-section {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.upload-box {
+    margin-top: 30px;
+    padding: 30px;
+    border: 2px dashed #007bff;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer; /* Indicate clickable area */
+}
+
+.upload-box:hover {
+    border-color: #0056b3;
+    background-color: #e9ecef;
+}
+
+.upload-box.dragover {
+    background-color: #e9ecef;
+    border-color: #0056b3;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+.upload-box svg {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.upload-box p {
+    margin: 0;
+    color: #555;
+}
+
+.file-label {
+    cursor: pointer;
+    color: #007bff;
+    font-weight: 600;
+    /* Removed text-decoration: underline; */
+    display: inline-block; /* To allow padding/margin if needed */
+    margin-top: 5px;
+}
+
+#file-status {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #333;
+    min-height: 1.2em;
+}
+
+/* Dark Mode Styles for upload-box */
+.dark-mode .upload-box {
+    background-color: #2a2a2a;
+    border-color: #007bff;
+}
+
+.dark-mode .upload-box:hover {
+    border-color: #00aaff;
+    background-color: #343a40;
+}
+
+.dark-mode .upload-box.dragover {
+    background-color: #343a40;
+    border-color: #00aaff;
+    box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
+}
+
+.dark-mode .upload-box svg {
+    color: #00aaff;
+}
+
+.dark-mode .upload-box p {
+    color: #aaa;
+}
+
+.dark-mode .file-label {
+    color: #00aaff;
+}
+
+.receive-box {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+}
+
+.receive-box label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    color: #555;
+}
+
+#code-input {
+    width: calc(100% - 24px);
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+#download-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#download-btn:hover {
+    background-color: #218838;
+}
+
+/* Help Widget */
+.help-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.help-emoji {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    font-size: 1.5rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.help-emoji:hover {
+    transform: scale(1.1);
+}
+
+#help-content {
+    position: absolute;
+    bottom: 65px;
+    right: 0;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 250px;
+}
+
+#help-content h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+#help-content p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* Feedback Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.feedback-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.feedback-content h3 {
+    color: #333;
+    margin-top: 0;
+}
+
+.feedback-content p {
+    color: #555;
+}
+
+.rating {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.rating .star {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.rating .star:hover {
+    transform: scale(1.2);
+}
+
+.rating .star.selected {
+    animation: pop 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1.1); }
+}
+
+#suggestion-box {
+    width: calc(100% - 24px);
+    height: 80px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+#submit-feedback-btn {
+    background: linear-gradient(45deg, #007bff, #00d4ff);
+    color: white;
+    border-radius: 12px;
+    padding: 12px 24px;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#submit-feedback-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+/* Custom Notification */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.custom-notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+#notification-emoji {
+    font-size: 1.8rem;
+}
+
+#notification-message {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: #121212;
+}
+
+.dark-mode .container {
+    background: #1e1e1e;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .logo h1, .dark-mode .receive-box label, .dark-mode #file-status {
+    color: #f1f1f1;
+}
+
+.dark-mode .upload-box {
+    background-color: #2a2a2a;
+    border-color: #007bff;
+}
+
+.dark-mode .upload-box p {
+    color: #aaa;
+}
+
+.dark-mode .receive-box {
+    border-color: #2a2a2a;
+}
+
+.dark-mode #code-input, .dark-mode #suggestion-box {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f1f1f1;
+}
+
+.dark-mode #help-content {
+    background: #2a2a2a;
+}
+
+.dark-mode #help-content h4, .dark-mode #help-content p {
+    color: #f1f1f1;
+}
+
+.dark-mode .feedback-content {
+    background: #2a2a2a;
+}
+
+.dark-mode .feedback-content h3, .dark-mode .feedback-content p {
+    color: #f1f1f1;
+}
+
+.dark-mode .close-btn {
+    color: #777;
+}
+
+.dark-mode .custom-notification {
+    background: #444;
+    color: #f1f1f1;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    .logo h1 {
+        font-size: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}

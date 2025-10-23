@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickShare – Serverless File Transfer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <h1>QuickShare</h1>
+            </div>
+            <button id="theme-toggle" class="theme-btn">🌙</button>
+        </header>
+        <main>
+            <div class="action-buttons">
+                <button id="send-btn" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                    Send
+                </button>
+                <button id="receive-btn" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Receive
+                </button>
+            </div>
+
+            <div id="send-section" class="hidden">
+                <div id="upload-area" class="upload-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <p>Drag & drop your file here or</p>
+                    <label class="file-label">Choose a file to send</label>
+                    <input type="file" id="file-input" class="hidden">
+                    <p id="file-status">(max 10 MB)</p>
+                </div>
+            </div>
+
+            <div id="receive-section" class="hidden">
+                <div class="receive-box">
+                    <label for="code-input">Enter Code to Receive File</label>
+                    <input type="text" id="code-input" placeholder="Enter code...">
+                    <button id="download-btn" class="btn">Download File</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="feedback-modal" class="modal-overlay" style="display: none;">
+        <div class="feedback-content">
+            <button class="close-btn">&times;</button>
+            <h3>Thanks for using QuickShare!</h3>
+            <p>How would you rate your experience?</p>
+            <div class="rating">
+                <span class="star" data-value="1">😡</span>
+                <span class="star" data-value="2">😐</span>
+                <span class="star" data-value="3">😊</span>
+                <span class="star" data-value="4">😁</span>
+                <span class="star" data-value="5">🤩</span>
+            </div>
+            <textarea id="suggestion-box" placeholder="Any suggestions?"></textarea>
+            <button id="submit-feedback-btn" class="btn">Submit Feedback</button>
+        </div>
+    </div>
+
+    <div class="help-widget">
+        <button id="help-btn" class="help-emoji">❓</button>
+        <div id="help-content" class="hidden">
+            <h4>Help & Support</h4>
+            <p>mubemubendiran@gmail.com</p>
+        </div>
+    </div>
+
+    <div id="custom-notification" class="custom-notification hidden">
+        <span id="notification-emoji"></span>
+        <p id="notification-message"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
