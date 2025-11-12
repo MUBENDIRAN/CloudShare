@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ==================== AWS API CONFIGURATION ====================
+    // TODO: Replace with YOUR actual API Gateway URL after deployment
+    const API_BASE_URL = 'https://mumulwi2i3.execute-api.ap-south-1.amazonaws.com/prod';
+    
+    const API_ENDPOINTS = {
+        upload: `${API_BASE_URL}/upload`,
+        download: `${API_BASE_URL}/download`,
+        feedback: `${API_BASE_URL}/feedback`
+    };
+    // ================================================================
+
     const sendBtn = document.getElementById('send-btn');
     const receiveBtn = document.getElementById('receive-btn');
     const sendSection = document.getElementById('send-section');
@@ -7,10 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileStatus = document.getElementById('file-status');
     const downloadBtn = document.getElementById('download-btn');
     const uploadBox = document.querySelector('.upload-box');
-    const uploadArea = document.getElementById('upload-area'); // Get the new upload area element
+    const uploadArea = document.getElementById('upload-area');
     const themeToggle = document.getElementById('theme-toggle');
     
-    // New elements
+    // Code display elements
+    const codeDisplaySection = document.getElementById('code-display-section');
+    const generatedCode = document.getElementById('generated-code');
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    
+    // Feedback elements
     const feedbackModal = document.getElementById('feedback-modal');
     const closeBtn = document.querySelector('.close-btn');
     const stars = document.querySelectorAll('.rating .star');
@@ -21,8 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationEmoji = document.getElementById('notification-emoji');
     const notificationMessage = document.getElementById('notification-message');
 
-    let hasFeedbackBeenShown = false; // Flag to show modal only once per session
-    let selectedRating = 0; // To store the current rating
+    let hasFeedbackBeenShown = false;
+    let selectedRating = 0;
+    let isUploading = false; // Prevent double uploads
 
     // Theme toggling
     themeToggle.addEventListener('click', () => {
@@ -45,11 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
     sendBtn.addEventListener('click', () => {
         sendSection.classList.remove('hidden');
         receiveSection.classList.add('hidden');
+        codeDisplaySection.classList.add('hidden');
     });
 
     receiveBtn.addEventListener('click', () => {
         receiveSection.classList.remove('hidden');
         sendSection.classList.add('hidden');
+        codeDisplaySection.classList.add('hidden');
     });
 
     fileInput.addEventListener('change', () => {
@@ -78,32 +97,141 @@ document.addEventListener('DOMContentLoaded', () => {
         handleFile(file);
     });
 
-    function handleFile(file) {
-        if (file) {
-            if (file.size > 10 * 1024 * 1024) { // 10 MB in bytes
-                showCustomNotification('Error: File exceeds 10 MB limit.', '❌');
-                fileInput.value = ''; // Reset file input
-            } else {
-                fileStatus.textContent = `File "${file.name}" ready to upload.`;
+    // ==================== FILE UPLOAD HANDLER (AWS BACKEND) ====================
+    async function handleFile(file) {
+        codeDisplaySection.classList.add('hidden');
+        
+        if (!file) {
+            return;
+        }
+
+        // Check file size (10 MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            showCustomNotification('Error: File exceeds 10 MB limit.', '❌');
+            fileInput.value = '';
+            fileStatus.textContent = '(max 10 MB)';
+            fileStatus.style.color = '#333';
+            return;
+        }
+
+        // Prevent double uploads
+        if (isUploading) {
+            showCustomNotification('Upload in progress, please wait...', '⏳');
+            return;
+        }
+
+        isUploading = true;
+        fileStatus.textContent = `Uploading "${file.name}"...`;
+        fileStatus.style.color = '#007bff';
+
+        try {
+            // Convert file to base64
+            const base64File = await fileToBase64(file);
+            
+            // Upload to AWS Lambda via API Gateway
+            const response = await fetch(API_ENDPOINTS.upload, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    file: base64File,
+                    filename: file.name,
+                    filesize: file.size,
+                    filetype: file.type
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Show the generated code
+                generatedCode.textContent = data.code;
+                codeDisplaySection.classList.remove('hidden');
+                
+                fileStatus.textContent = `File "${file.name}" uploaded successfully!`;
                 fileStatus.style.color = '#28a745';
-                // TODO: Add backend API call to upload the file and get a code
+                
+                showCustomNotification('File uploaded successfully! 🎉', '✅');
                 showFeedbackModal();
+            } else {
+                throw new Error(data.message || 'Upload failed');
             }
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            fileStatus.textContent = 'Upload failed. Please try again.';
+            fileStatus.style.color = '#dc3545';
+            showCustomNotification('Upload failed. Please try again.', '❌');
+        } finally {
+            isUploading = false;
+            fileInput.value = ''; // Reset file input
         }
     }
 
-    downloadBtn.addEventListener('click', () => {
-        const code = document.getElementById('code-input').value;
-        if (code) {
-            // TODO: Add backend API call to download the file using the code
-            showCustomNotification(`Downloading file with code: ${code}`, '⬇️');
-            showFeedbackModal();
-        } else {
+    // Helper function to convert file to base64
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                // Remove the data:*/*;base64, prefix
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ==================== COPY CODE FUNCTIONALITY ====================
+    copyCodeBtn.addEventListener('click', () => {
+        const codeToCopy = generatedCode.textContent;
+        navigator.clipboard.writeText(codeToCopy).then(() => {
+            showCustomNotification('Code copied to clipboard!', '📋');
+        }).catch(err => {
+            console.error('Failed to copy code: ', err);
+            showCustomNotification('Failed to copy code.', '❌');
+        });
+    });
+
+    // ==================== FILE DOWNLOAD HANDLER (AWS BACKEND) ====================
+    downloadBtn.addEventListener('click', async () => {
+        const code = document.getElementById('code-input').value.trim().toUpperCase();
+        
+        if (!code) {
             showCustomNotification('Please enter a code.', '⚠️');
+            return;
+        }
+
+        // Show loading state
+        downloadBtn.disabled = true;
+        downloadBtn.textContent = 'Retrieving...';
+
+        try {
+            const response = await fetch(`${API_ENDPOINTS.download}?code=${code}`);
+            const data = await response.json();
+
+            if (response.ok && data.success && data.url) {
+                // Open download link in new tab
+                window.open(data.url, '_blank');
+                showCustomNotification(`Downloading: ${data.filename}`, '⬇️');
+                document.getElementById('code-input').value = ''; // Clear input
+                showFeedbackModal();
+            } else {
+                throw new Error(data.message || 'Invalid code or file not found');
+            }
+
+        } catch (error) {
+            console.error('Download error:', error);
+            showCustomNotification('Invalid code or file not found.', '❌');
+        } finally {
+            // Reset button
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = 'Download';
         }
     });
 
-    // Feedback Modal functions
+    // ==================== FEEDBACK MODAL FUNCTIONS ====================
     function showFeedbackModal() {
         if (!hasFeedbackBeenShown) {
             feedbackModal.style.display = 'flex';
@@ -113,9 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideFeedbackModal() {
         feedbackModal.style.display = 'none';
-        selectedRating = 0; // Reset rating when modal closes
-        document.getElementById('suggestion-box').value = ''; // Clear text box
-        stars.forEach(s => s.classList.remove('selected')); // Clear selected star visual
+        selectedRating = 0;
+        document.getElementById('suggestion-box').value = '';
+        stars.forEach(s => s.classList.remove('selected'));
     }
 
     closeBtn.addEventListener('click', hideFeedbackModal);
@@ -130,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         star.addEventListener('click', () => {
             selectedRating = parseInt(star.getAttribute('data-value'));
 
-            // Visual selection and animation
+            // Visual selection
             stars.forEach(s => s.classList.remove('selected'));
             star.classList.add('selected');
 
@@ -143,37 +271,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitFeedbackBtn.addEventListener('click', submitFeedback);
 
-    function submitFeedback() {
+    // ==================== SUBMIT FEEDBACK (AWS BACKEND) ====================
+    async function submitFeedback() {
         const suggestion = document.getElementById('suggestion-box').value.trim();
-        let feedbackMessage = '';
-        let notificationEmoji = '✨';
 
-        if (suggestion !== '') {
-            feedbackMessage = 'Thank you for your valuable suggestion!';
-            notificationEmoji = '📝';
-        } else if (selectedRating > 0) {
-            feedbackMessage = 'Thank you for your feedback!';
-            notificationEmoji = '🌟';
-        } else {
-            feedbackMessage = 'Thank you!'; // Fallback
+        // Check if there's something to submit
+        if (selectedRating === 0 && suggestion === '') {
+            showCustomNotification('Please provide a rating or feedback.', '⚠️');
+            return;
         }
 
-        // Optionally add rating details if only rating was given
-        if (selectedRating > 0 && suggestion === '') {
-            feedbackMessage += ` You rated us ${selectedRating} stars.`;
-        }
+        try {
+            const response = await fetch(API_ENDPOINTS.feedback, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    rating: selectedRating,
+                    feedback: suggestion,
+                    timestamp: new Date().toISOString()
+                })
+            });
 
-        showCustomNotification(feedbackMessage, notificationEmoji);
-        hideFeedbackModal();
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                let feedbackMessage = '';
+                let emoji = '✨';
+
+                if (suggestion !== '') {
+                    feedbackMessage = 'Thank you for your valuable suggestion!';
+                    emoji = '📝';
+                } else if (selectedRating > 0) {
+                    feedbackMessage = `Thank you for your ${selectedRating}-star rating!`;
+                    emoji = '🌟';
+                }
+
+                showCustomNotification(feedbackMessage, emoji);
+                hideFeedbackModal();
+            } else {
+                throw new Error(data.message || 'Failed to submit feedback');
+            }
+
+        } catch (error) {
+            console.error('Feedback error:', error);
+            showCustomNotification('Failed to submit feedback. Please try again.', '❌');
+        }
     }
 
-    // Custom Notification function
+    // ==================== CUSTOM NOTIFICATION FUNCTION ====================
     function showCustomNotification(message, emoji, duration = 5000) {
         notificationEmoji.textContent = emoji;
         notificationMessage.textContent = message;
 
         customNotification.classList.remove('hidden');
-        customNotification.classList.add('show'); // For animation
+        customNotification.classList.add('show');
 
         setTimeout(() => {
             customNotification.classList.remove('show');
@@ -181,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, duration);
     }
 
-    // Help Widget
+    // ==================== HELP WIDGET ====================
     helpBtn.addEventListener('click', () => {
         helpContent.classList.toggle('hidden');
     });

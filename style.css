@@ -203,6 +203,93 @@ body {
     background-color: #218838;
 }
 
+/* Code Display Section */
+.code-box {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.code-box p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.code-output {
+    display: flex;
+    align-items: center;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    padding: 10px 15px;
+    gap: 10px;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+#generated-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #333;
+    user-select: all; /* Allows easy selection */
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007bff;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.btn-icon:hover {
+    color: #0056b3;
+}
+
+/* Dark Mode for Code Display Section */
+.dark-mode .code-box {
+    background-color: #2a2a2a;
+    border-color: #343a40;
+}
+
+.dark-mode .code-box p {
+    color: #aaa;
+}
+
+.dark-mode .code-output {
+    background-color: #343a40;
+}
+
+.dark-mode #generated-code {
+    color: #f1f1f1;
+}
+
+.dark-mode .btn-icon {
+    color: #00aaff;
+}
+
+.dark-mode .btn-icon:hover {
+    color: #007bff;
+}
+
+/* Help Widget */
+.help-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
 /* Help Widget */
 .help-widget {
     position: fixed;

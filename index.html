@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickShare – Serverless File Transfer</title>
+    <title>CloudShare</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +12,7 @@
         <header class="header">
             <div class="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <h1>QuickShare</h1>
+                <h1>CloudShare</h1>
             </div>
             <button id="theme-toggle" class="theme-btn">🌙</button>
         </header>
@@ -35,6 +35,17 @@
                     <label class="file-label">Choose a file to send</label>
                     <input type="file" id="file-input" class="hidden">
                     <p id="file-status">(max 10 MB)</p>
+                </div>
+                <div id="code-display-section" class="hidden">
+                    <div class="code-box">
+                        <p>Share this code:</p>
+                        <div class="code-output">
+                            <span id="generated-code"></span>
+                            <button id="copy-code-btn" class="btn-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
