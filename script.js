@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const fileStatus = document.getElementById('file-status');
     const downloadBtn = document.getElementById('download-btn');
-    const uploadBox = document.querySelector('.upload-box');
     const uploadArea = document.getElementById('upload-area');
     const themeToggle = document.getElementById('theme-toggle');
     
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let hasFeedbackBeenShown = false;
     let selectedRating = 0;
-    let isUploading = false; // Prevent double uploads
+    let isUploading = false;
 
     // Theme toggling
     themeToggle.addEventListener('click', () => {
@@ -76,23 +75,35 @@ document.addEventListener('DOMContentLoaded', () => {
         handleFile(file);
     });
 
+    // Click on upload area to trigger file input
+    uploadArea.addEventListener('click', (e) => {
+        // Don't trigger if clicking on the label itself
+        if (e.target.tagName !== 'LABEL') {
+            fileInput.click();
+        }
+    });
+
+    // Make label also trigger file input
+    const fileLabel = document.querySelector('.file-label');
+    if (fileLabel) {
+        fileLabel.addEventListener('click', () => {
+            fileInput.click();
+        });
+    }
+
     // Drag and drop functionality
-    uploadArea.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    uploadBox.addEventListener('dragover', (e) => {
+    uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
-        uploadBox.classList.add('dragover');
+        uploadArea.classList.add('dragover');
     });
 
-    uploadBox.addEventListener('dragleave', () => {
-        uploadBox.classList.remove('dragover');
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
     });
 
-    uploadBox.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        uploadBox.classList.remove('dragover');
+        uploadArea.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
         handleFile(file);
     });
@@ -110,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomNotification('Error: File exceeds 10 MB limit.', '❌');
             fileInput.value = '';
             fileStatus.textContent = '(max 10 MB)';
-            fileStatus.style.color = '#333';
+            fileStatus.style.color = '#dc3545';
             return;
         }
 
@@ -149,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 generatedCode.textContent = data.code;
                 codeDisplaySection.classList.remove('hidden');
                 
-                fileStatus.textContent = `File "${file.name}" uploaded successfully!`;
+                fileStatus.textContent = `File uploaded successfully! ✅`;
                 fileStatus.style.color = '#28a745';
                 
                 showCustomNotification('File uploaded successfully! 🎉', '✅');
@@ -165,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomNotification('Upload failed. Please try again.', '❌');
         } finally {
             isUploading = false;
-            fileInput.value = ''; // Reset file input
+            fileInput.value = '';
         }
     }
 
@@ -174,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-                // Remove the data:*/*;base64, prefix
                 const base64 = reader.result.split(',')[1];
                 resolve(base64);
             };
@@ -184,15 +194,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==================== COPY CODE FUNCTIONALITY ====================
-    copyCodeBtn.addEventListener('click', () => {
+    copyCodeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event bubbling
         const codeToCopy = generatedCode.textContent;
-        navigator.clipboard.writeText(codeToCopy).then(() => {
-            showCustomNotification('Code copied to clipboard!', '📋');
-        }).catch(err => {
-            console.error('Failed to copy code: ', err);
-            showCustomNotification('Failed to copy code.', '❌');
-        });
+        
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showCustomNotification('Code copied to clipboard!', '📋');
+            }).catch(err => {
+                console.error('Clipboard API failed, using fallback:', err);
+                fallbackCopy(codeToCopy);
+            });
+        } else {
+            // Fallback for older browsers or HTTP
+            fallbackCopy(codeToCopy);
+        }
     });
+
+    // Fallback copy function (works on HTTP and older browsers)
+    function fallbackCopy(text) {
+        const tempInput = document.createElement('input');
+        tempInput.value = text;
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        tempInput.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCustomNotification('Code copied to clipboard!', '📋');
+            } else {
+                showCustomNotification('Failed to copy. Please copy manually.', '⚠️');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            showCustomNotification('Please copy the code manually.', '⚠️');
+        }
+        
+        document.body.removeChild(tempInput);
+    }
 
     // ==================== FILE DOWNLOAD HANDLER (AWS BACKEND) ====================
     downloadBtn.addEventListener('click', async () => {
@@ -205,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show loading state
         downloadBtn.disabled = true;
+        const originalText = downloadBtn.textContent;
         downloadBtn.textContent = 'Retrieving...';
 
         try {
@@ -227,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             // Reset button
             downloadBtn.disabled = false;
-            downloadBtn.textContent = 'Download';
+            downloadBtn.textContent = originalText;
         }
     });
 
@@ -262,9 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
             stars.forEach(s => s.classList.remove('selected'));
             star.classList.add('selected');
 
-            // If only rating is provided, submit immediately
-            if (document.getElementById('suggestion-box').value.trim() === '') {
-                submitFeedback();
+            // Auto-submit if no text entered
+            const suggestionBox = document.getElementById('suggestion-box');
+            if (suggestionBox && suggestionBox.value.trim() === '') {
+                // Small delay so user sees the selection
+                setTimeout(() => submitFeedback(), 300);
             }
         });
     });
@@ -273,13 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ==================== SUBMIT FEEDBACK (AWS BACKEND) ====================
     async function submitFeedback() {
-        const suggestion = document.getElementById('suggestion-box').value.trim();
+        const suggestionBox = document.getElementById('suggestion-box');
+        const suggestion = suggestionBox ? suggestionBox.value.trim() : '';
 
         // Check if there's something to submit
         if (selectedRating === 0 && suggestion === '') {
             showCustomNotification('Please provide a rating or feedback.', '⚠️');
             return;
         }
+
+        // Disable button during submission
+        submitFeedbackBtn.disabled = true;
+        const originalText = submitFeedbackBtn.textContent;
+        submitFeedbackBtn.textContent = 'Submitting...';
 
         try {
             const response = await fetch(API_ENDPOINTS.feedback, {
@@ -317,6 +369,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Feedback error:', error);
             showCustomNotification('Failed to submit feedback. Please try again.', '❌');
+        } finally {
+            // Reset button
+            submitFeedbackBtn.disabled = false;
+            submitFeedbackBtn.textContent = originalText;
         }
     }
 
@@ -338,4 +394,16 @@ document.addEventListener('DOMContentLoaded', () => {
     helpBtn.addEventListener('click', () => {
         helpContent.classList.toggle('hidden');
     });
+
+    // ==================== DEBUGGING HELPER ====================
+    // Uncomment this to check if all elements are found
+    /*
+    console.log('🔍 Element Check:');
+    console.log('file-input:', fileInput ? '✅' : '❌');
+    console.log('code-input:', document.getElementById('code-input') ? '✅' : '❌');
+    console.log('generated-code:', generatedCode ? '✅' : '❌');
+    console.log('copy-code-btn:', copyCodeBtn ? '✅' : '❌');
+    console.log('suggestion-box:', document.getElementById('suggestion-box') ? '✅' : '❌');
+    console.log('submit-feedback-btn:', submitFeedbackBtn ? '✅' : '❌');
+    */
 });
