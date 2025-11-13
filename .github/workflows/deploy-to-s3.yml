@@ -1,20 +1,16 @@
-# .github/workflows/deploy-to-s3.yml
-# This workflow automatically deploys your frontend to S3 when you push to main branch
-
 name: Deploy Frontend to S3
 
 on:
   push:
     branches:
-      - main  # Change to your default branch if different
-  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+      - main  
+    
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-      # Step 1: Checkout your code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -24,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1 # Change to your S3 bucket region
+          aws-region: ap-south-1 
 
       # Step 3: Sync ONLY frontend files to S3 bucket
       - name: Deploy Frontend to S3
