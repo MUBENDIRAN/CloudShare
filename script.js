@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeDisplaySection = document.getElementById('code-display-section');
     const generatedCode = document.getElementById('generated-code');
     const copyCodeBtn = document.getElementById('copy-code-btn');
+    const codeCaption = document.getElementById('code-caption');
+    
     
     // Feedback elements
     const feedbackModal = document.getElementById('feedback-modal');
@@ -159,12 +161,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show the generated code
                 generatedCode.textContent = data.code;
                 codeDisplaySection.classList.remove('hidden');
+                codeCaption.classList.remove('hidden');
                 
                 fileStatus.textContent = `File uploaded successfully! ✅`;
                 fileStatus.style.color = '#28a745';
                 
                 showCustomNotification('File uploaded successfully! 🎉', '✅');
                 showFeedbackModal();
+
+                setTimeout(() => {
+                    codeDisplaySection.classList.add('hidden');
+                    codeCaption.classList.add('hidden');
+                }, 30000);
             } else {
                 throw new Error(data.message || 'Upload failed');
             }

@@ -13,6 +13,17 @@
             <div class="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 <h1>CloudShare</h1>
+                <div class="info-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <div class="info-modal">
+                        <h4>Welcome to CloudShare!</h4>
+                        <ul>
+                            <li>Files are available in the cloud for <strong>24 hours</strong>.</li>
+                            <li>Copy the generated code within <strong>30 seconds</strong> before it disappears.</li>
+                            <li>The download URL for a received file is valid for <strong>1 hour</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             <button id="theme-toggle" class="theme-btn">🌙</button>
         </header>
@@ -45,6 +56,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                         </div>
+                        <p id="code-caption" class="hidden">after 30 sec the code disappear</p>
                     </div>
                 </div>
             </div>
