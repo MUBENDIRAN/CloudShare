@@ -327,6 +327,14 @@ body {
     margin-bottom: 5px;
 }
 
+.welcome-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    margin-top: 10px;
+}
+
 .info-icon:hover .info-modal {
     display: block;
 }
