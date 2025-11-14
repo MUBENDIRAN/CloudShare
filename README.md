@@ -1,55 +1,57 @@
 # CloudShare
 
-CloudShare is a serverless file-sharing service built on AWS, focused on quick, temporary transfers. It uses Lambda, S3, DynamoDB, and a 24-hour TTL cleanup system. Deployment is automated through GitHub Actions.
+CloudShare is a serverless, temporary file-sharing service built entirely on AWS. Users can upload a file, receive a short access code, and share it with someone else to download the file. Everything is automated, short-lived, and fully serverless.
 
 ## How It Works
 
 1. **Upload**  
-   The user uploads a file (e.g., `photo.jpg`, 2 MB JPEG).
+   The user selects a file and uploads it through the web interface.
 
 2. **Code Generation**  
-   A Lambda function creates a unique access code such as `AB12CD34`.
+   A Lambda function generates a unique access code (e.g., `AB12CD34`) for the file.
 
-3. **Storage in S3**  
-   The file is saved to S3 with the correct metadata:  
-   - `ContentType: image/jpeg`  
-   - `ContentDisposition: filename="photo.jpg"`
+3. **Temporary Storage in S3**  
+   The uploaded file is stored in Amazon S3 with the correct metadata.  
+   S3 is also used to host the frontend website.
 
-4. **Record in DynamoDB**  
-   The system stores:  
-   - `code: AB12CD34`  
-   - `filename: photo.jpg`  
-   - `filetype: image/jpeg`  
-   - `ttl: <UNIX timestamp 24h from upload>`
+4. **Tracking in DynamoDB**  
+   DynamoDB stores:
+   - the generated access code  
+   - the original filename  
+   - the MIME type  
+   - a TTL timestamp for cleanup
 
-5. **Frontend Display**  
-   The generated code is shown to the user for 30 seconds.
+5. **Code Display**  
+   The frontend shows the generated code, and it automatically disappears after 30 seconds.
 
 6. **Receiving**  
-   The recipient enters the code on the Receive page.
+   The recipient enters the access code on the Receive page.
 
-7. **Presigned URL**  
-   A Lambda function returns a presigned download URL containing:  
-   - the original filename  
-   - the correct content type
+7. **Presigned URL Delivery**  
+   A Lambda function validates the code and returns a presigned S3 download URL.  
+   This URL is valid for **1 hour**.
 
 8. **Download**  
-   The file downloads and opens with the correct file type.
+   The user downloads the file using the presigned link, with the correct filename and MIME type preserved.
 
-9. **Expiration**  
-   After 24 hours:  
+9. **Expiration & Cleanup**  
+   Files stay available in the cloud for **24 hours**.  
+   After that:
    - the S3 object is deleted  
-   - the DynamoDB entry expires  
+   - the DynamoDB record expires  
    - the access code becomes invalid
 
 ## Tech Stack
 
-- **AWS Lambda** – file upload and download handlers  
-- **AWS S3** – file storage  
-- **AWS DynamoDB** – metadata + TTL expiration  
-- **GitHub Actions** – CI/CD  
-- **Frontend** – upload and receive interface
+- **AWS Lambda** – backend logic  
+- **Amazon S3** – file storage + static website hosting  
+- **Amazon DynamoDB** – code/file metadata + TTL expiration  
+- **API Gateway (REST)** – interface between frontend and Lambda  
+- **CloudFront** – HTTPS layer for the static site  
+- **GitHub Actions** – CI/CD deployment for the project  
+- **CloudWatch** – logs and monitoring for Lambda  
+- **Frontend** – static HTML/CSS/JS
 
 ## Purpose
 
-A minimal, secure, temporary file-sharing tool with no accounts and no persistent data.
+A minimal, serverless, no-account file-sharing tool designed for quick, temporary transfers with automatic cleanup.
