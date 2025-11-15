@@ -43,14 +43,15 @@ CloudShare is a serverless, temporary file-sharing service built entirely on AWS
 
 ## Tech Stack
 
-- **AWS Lambda** – backend logic  
-- **Amazon S3** – file storage + static website hosting  
-- **Amazon DynamoDB** – code/file metadata + TTL expiration  
-- **API Gateway (REST)** – interface between frontend and Lambda  
-- **CloudFront** – HTTPS layer for the static site  
-- **GitHub Actions** – CI/CD deployment for the project  
-- **CloudWatch** – logs and monitoring for Lambda  
-- **Frontend** – static HTML/CSS/JS
+- **AWS Lambda** – Backend logic  
+- **Amazon S3** – File storage + static website hosting  
+- **Amazon DynamoDB** – Stores file metadata and feedback; file metadata is auto-expired using TTL  
+- **API Gateway (REST)** – Acts as the interface between the frontend and Lambda  
+- **CloudFront** – Provides HTTPS and global CDN caching for the static site  
+- **IAM** – Roles for Lambda + a dedicated CI/CD IAM user used by GitHub Actions  
+- **GitHub Actions** – CI/CD pipeline for deploying updates to AWS  
+- **CloudWatch** – Logs and monitoring for Lambda functions  
+- **Frontend** – Static HTML, CSS, and JavaScript
 
 ## Purpose
 
