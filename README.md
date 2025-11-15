@@ -56,3 +56,9 @@ CloudShare is a serverless, temporary file-sharing service built entirely on AWS
 ## Purpose
 
 A minimal, serverless, no-account file-sharing tool designed for quick, temporary transfers with automatic cleanup.
+
+## 🎥 YouTube Video
+
+Check out the full walkthrough and demo of **CloudShare** on YouTube:
+
+▶️ **Watch here:** https://www.youtube.com/watch?v=<https://youtu.be/NGL95asKHoM>
