@@ -41,6 +41,61 @@ CloudShare is a serverless, temporary file-sharing service built entirely on AWS
    - the DynamoDB record expires  
    - the access code becomes invalid
 
+
+## Architecture
+
+      ```mermaid
+      flowchart TD
+          Uploader[User (Uploader)]
+          Receiver[User (Receiver)]
+      
+          subgraph FE[Static Frontend (HTML/CSS/JS)]
+              UploadPage[Upload Page]
+              ReceivePage[Receive Page]
+          end
+      
+          subgraph AWS[AWS Cloud]
+              subgraph Edge[Edge & Routing]
+                  CF[CloudFront CDN]
+                  APIGW[API Gateway (REST)]
+              end
+      
+              subgraph LambdaGroup[Lambda Functions]
+                  LUpload[Lambda: Handle Upload\n+ generate access code\n+ write to DynamoDB]
+                  LReceive[Lambda: Validate Code\n+ generate presigned URL]
+              end
+      
+              subgraph Data[Data Stores]
+                  S3[(Amazon S3\nFiles + Static Site)]
+                  DDB[(DynamoDB\nCode, filename, TTL)]
+              end
+      
+              CW[CloudWatch Logs]
+          end
+      
+          Uploader -->|Browser| CF
+          CF -->|Serves static site| S3
+          CF --> FE
+      
+          UploadPage -->|Upload request\n(code, file metadata)| APIGW
+          APIGW --> LUpload
+          LUpload -->|Store file| S3
+          LUpload -->|Store code + TTL| DDB
+          LUpload -->|Return access code| UploadPage
+          UploadPage -->|Show access code\n(30 seconds)| Uploader
+      
+          Receiver -->|Enter access code| CF
+          CF --> FE
+          ReceivePage -->|Verify code| APIGW
+          APIGW --> LReceive
+          LReceive -->|Lookup code| DDB
+          LReceive -->|Generate presigned URL\n(1 hour expiry)| S3
+          LReceive -->|Return presigned URL| ReceivePage
+          ReceivePage -->|Download file| S3
+      
+          LUpload --> CW
+          LReceive --> CW
+
 ## Tech Stack
 
 - **AWS Lambda** – Backend logic  
