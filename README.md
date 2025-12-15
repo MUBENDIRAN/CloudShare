@@ -41,60 +41,60 @@ CloudShare is a serverless, temporary file-sharing service built entirely on AWS
    - the DynamoDB record expires  
    - the access code becomes invalid
 
-
 ## Architecture
 
-      ```mermaid
-      flowchart TD
-          Uploader[User (Uploader)]
-          Receiver[User (Receiver)]
-      
-          subgraph FE[Static Frontend (HTML/CSS/JS)]
-              UploadPage[Upload Page]
-              ReceivePage[Receive Page]
-          end
-      
-          subgraph AWS[AWS Cloud]
-              subgraph Edge[Edge & Routing]
-                  CF[CloudFront CDN]
-                  APIGW[API Gateway (REST)]
-              end
-      
-              subgraph LambdaGroup[Lambda Functions]
-                  LUpload[Lambda: Handle Upload\n+ generate access code\n+ write to DynamoDB]
-                  LReceive[Lambda: Validate Code\n+ generate presigned URL]
-              end
-      
-              subgraph Data[Data Stores]
-                  S3[(Amazon S3\nFiles + Static Site)]
-                  DDB[(DynamoDB\nCode, filename, TTL)]
-              end
-      
-              CW[CloudWatch Logs]
-          end
-      
-          Uploader -->|Browser| CF
-          CF -->|Serves static site| S3
-          CF --> FE
-      
-          UploadPage -->|Upload request\n(code, file metadata)| APIGW
-          APIGW --> LUpload
-          LUpload -->|Store file| S3
-          LUpload -->|Store code + TTL| DDB
-          LUpload -->|Return access code| UploadPage
-          UploadPage -->|Show access code\n(30 seconds)| Uploader
-      
-          Receiver -->|Enter access code| CF
-          CF --> FE
-          ReceivePage -->|Verify code| APIGW
-          APIGW --> LReceive
-          LReceive -->|Lookup code| DDB
-          LReceive -->|Generate presigned URL\n(1 hour expiry)| S3
-          LReceive -->|Return presigned URL| ReceivePage
-          ReceivePage -->|Download file| S3
-      
-          LUpload --> CW
-          LReceive --> CW
+```mermaid
+flowchart TD
+    Uploader[User Uploader]
+    Receiver[User Receiver]
+
+    subgraph FE[Static Frontend HTML/CSS/JS]
+        UploadPage[Upload Page]
+        ReceivePage[Receive Page]
+    end
+
+    subgraph AWS[AWS Cloud]
+        subgraph Edge[Edge & Routing]
+            CF[CloudFront CDN]
+            APIGW[API Gateway REST]
+        end
+
+        subgraph LambdaGroup[Lambda Functions]
+            LUpload[Lambda: Handle Upload<br/>+ generate access code<br/>+ write to DynamoDB]
+            LReceive[Lambda: Validate Code<br/>+ generate presigned URL]
+        end
+
+        subgraph Data[Data Stores]
+            S3[(Amazon S3<br/>Files + Static Site)]
+            DDB[(DynamoDB<br/>Code, filename, TTL)]
+        end
+
+        CW[CloudWatch Logs]
+    end
+
+    Uploader -->|Browser| CF
+    CF -->|Serves static site| S3
+    CF --> FE
+
+    UploadPage -->|Upload request| APIGW
+    APIGW --> LUpload
+    LUpload -->|Store file| S3
+    LUpload -->|Store code + TTL| DDB
+    LUpload -->|Return access code| UploadPage
+    UploadPage -->|Show access code 30s| Uploader
+
+    Receiver -->|Enter access code| CF
+    CF --> FE
+    ReceivePage -->|Verify code| APIGW
+    APIGW --> LReceive
+    LReceive -->|Lookup code| DDB
+    LReceive -->|Generate presigned URL| S3
+    LReceive -->|Return presigned URL| ReceivePage
+    ReceivePage -->|Download file| S3
+
+    LUpload -.-> CW
+    LReceive -.-> CW
+```
 
 ## Tech Stack
 
@@ -116,4 +116,4 @@ A minimal, serverless, no-account file-sharing tool designed for quick, temporar
 
 Check out the full walkthrough and demo of **CloudShare** on YouTube:
 
-▶️ **Watch here:** https://www.youtube.com/watch?v=<https://youtu.be/NGL95asKHoM>
+▶️ **Watch here:** https://youtu.be/NGL95asKHoM
