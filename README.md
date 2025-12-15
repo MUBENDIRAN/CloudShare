@@ -96,6 +96,27 @@ flowchart TD
     LReceive -.-> CW
 ```
 
+## Project Structure
+
+```
+CloudShare/
+├── .github/
+│   └── workflows/
+├── img/
+│   └── logo.png
+├── lambda/
+│   ├── download_lambda.py
+│   ├── feedback_lambda.py
+│   └── upload_lambda.py
+├── .gitignore
+├── CloudShare(logo).png
+├── index.html
+├── README.md
+├── script.js
+├── style.css
+└── Working.mp4
+```
+
 ## Tech Stack
 
 - **AWS Lambda** – Backend logic  
